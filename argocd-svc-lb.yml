@@ -3,6 +3,8 @@ kind: Service
 metadata:
   name: argocd-server-lb
   namespace: argocd
+  annotations:
+    external-dns.alpha.kubernetes.io/hostname: argocd.opnsense.local
 spec:
   # type: ClusterIP
   type: LoadBalancer
