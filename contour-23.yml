@@ -1,0 +1,26 @@
+# https://docs.vmware.com/en/VMware-Tanzu-Kubernetes-Grid/2.3/using-tkg/workload-packages-contour.html
+
+infrastructure_provider: vsphere
+namespace: tanzu-system-ingress
+contour:
+  configFileContents: {}
+  useProxyProtocol: false
+  replicas: 2
+  pspNames: "vmware-system-restricted"
+  logLevel: info
+envoy:
+  service:
+    type: NodePort
+    annotations: {}
+    externalTrafficPolicy: Cluster
+    disableWait: false
+  hostPorts:
+    enable: true
+    http: 80
+    https: 443
+  hostNetwork: false
+  terminationGracePeriodSeconds: 300
+  logLevel: info
+certificates:
+  duration: 8760h
+  renewBefore: 360h

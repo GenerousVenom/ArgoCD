@@ -1,0 +1,93 @@
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: harbor-sa
+  namespace: tkg-system
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: habor-role-binding
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: cluster-admin
+subjects:
+  - kind: ServiceAccount
+    name: harbor-sa
+    namespace: tkg-system
+---
+apiVersion: packaging.carvel.dev/v1alpha1
+kind: PackageInstall
+metadata:
+  name: harbor
+  namespace: tkg-system
+spec:
+  serviceAccountName: harbor-sa
+  packageRef:
+    refName: harbor.tanzu.vmware.com
+    versionSelection:
+      constraints: 2.8.2+vmware.2-tkg.1
+  values:
+  - secretRef:
+      name: harbor-data-values
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: harbor-data-values
+  namespace: harbor-registry
+stringData:
+  values.yml: |
+    namespace: tanzu-system-registry
+    hostname: tanzuce.opnsense.local
+    port:
+      https: 443
+    logLevel: info
+    tlsCertificate:
+      tls.crt: ""
+      tls.key: ""
+      ca.crt:
+    tlsCertificateSecretName:
+    enableContourHttpProxy: true
+    harborAdminPassword: "123qwe!@#QWE"
+    secretKey: 0123456789ABCDEF
+    database:
+      password: "123qwe!@#QWE"
+      shmSizeLimit:
+      maxIdleConns:
+      maxOpenConns:
+    exporter:
+      cacheDuration:
+    core:
+      replicas: 1
+      secret: "123qwe!@#QWE"
+      xsrfKey: 0123456789ABCDEF0123456789ABCDEF
+    jobservice:
+      replicas: 1
+      secret: "123qwe!@#QWE"
+    registry:
+      replicas: 1
+      secret: "123qwe!@#QWE"
+    notary:
+      enabled: true
+    trivy:
+      enabled: true
+      replicas: 1
+      gitHubToken: ""
+      skipUpdate: false
+    persistence:
+      persistentVolumeClaim:
+        registry:
+          existingClaim: ""
+          storageClass: "default"
+          subPath: ""
+          accessMode: ReadWriteOnce
+          size: 50Gi
+    proxy:
+      httpProxy:
+      httpsProxy:
+      noProxy: 127.0.0.1,localhost,.local,.internal
+    pspNames: vmware-system-restricted
+    network:
+      ipFamilies: ["IPv4", "IPv6"]
